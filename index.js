@@ -112,6 +112,12 @@ function addQuestionData(obj, count) {
 
 }
 
+function checkanswer(answer,count){
+console.log(answer)
+console.log(count)
+
+}
+
 
 
 
