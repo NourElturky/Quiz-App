@@ -1,6 +1,6 @@
 // Select Elements
 let countSpan = document.querySelector(".count span");
-let bullets = document.querySelector(".bullets .Spans");
+let bullets = document.querySelector(".bullets");
 let bulletsSpanContainer = document.querySelector(".bullets .spans");
 let quizArea = document.querySelector(".quiz-area");
 let answersArea = document.querySelector(".answer-area");
@@ -11,7 +11,7 @@ let countdownElement = document.querySelector(".countdown");
 
 //set options
 let currentIndex = 0;
-
+let rightAnswers = 0;
 
 function getQutions() {
     let myRequest = new XMLHttpRequest();      //IDK This
@@ -27,6 +27,40 @@ function getQutions() {
             //Add Question Data
             addQuestionData(questionsObject[currentIndex], qCount);
 
+            //startcountDown
+            countdown(5,qCount)
+
+            //click on submit
+            submitButton.onclick=()=>{
+
+                //get right answer
+let theRightAnser = questionsObject[currentIndex].right_answer;
+
+//increas Index
+currentIndex++;
+//Check The Answer 
+checkAnswer(theRightAnser,qCount)
+
+//Remove Previous Question
+quizArea.innerHTML = ''
+answersArea.innerHTML = ''
+
+//Add Question Data
+addQuestionData(questionsObject[currentIndex], qCount);
+
+//Handle Bullets class
+handleBullets()
+
+//startcountDown
+clearInterval(countdownInterval)
+
+countdown(5,qCount)
+
+
+//Show Results
+showResults(qCount)
+
+}
         }
     };
 
@@ -54,8 +88,10 @@ function createBullets(num) {
     }
 }
 
+
 function addQuestionData(obj, count) {
 
+    if(currentIndex < count){
     //create h2 Question title
     let questiontitle = document.createElement("h2")
 
@@ -109,23 +145,79 @@ function addQuestionData(obj, count) {
         answersArea.appendChild(mainDiv);
 
     }
+}
 
 }
 
-function checkanswer(answer,count){
-console.log(answer)
-console.log(count)
+function checkAnswer(ranswer, count){
+let answers=document.getElementsByName("question")
+let theChoosenAnswer;
 
+for (let i=0; i<answers.length; i++){
+if(answers[i].checked){
+    theChoosenAnswer = answers[i].dataset.answer
+}
 }
 
 
+if(ranswer===theChoosenAnswer){
+    rightAnswers++;
+    console.log("good Answer");
+}
+}
+
+function handleBullets() {
+    let bulletsSpans = document.querySelectorAll(".bullets .spans span");
+    let arrayOfSpans = Array.from(bulletsSpans);
+    arrayOfSpans.forEach((span, index) => {
+    if (currentIndex === index) {
+        span.className = "on";
+    }
+    });
+}
+
+function showResults(count){
+let theResults 
+    if(currentIndex===count){
+quizArea.remove();
+answersArea.remove();
+submitButton.remove();
+bullets.remove();
+
+if (rightAnswers > count / 2 && rightAnswers < count) {
+    theResults = `<span class="good">Good</span>, ${rightAnswers} From ${count}`;
+} else if (rightAnswers === count) {
+theResults = `<span class="perfect">Perfect</span>, All Answers Is Good`;
+} else {
+theResults = `<span class="bad">Bad</span>, ${rightAnswers} From ${count}`;
+}
+resultsContainer.innerHTML = theResults;
+resultsContainer.style.padding = "10px";
+resultsContainer.style.backgroundColor = "white";
+resultsContainer.style.marginTop = "10px";
+}
+}
 
 
+function countdown(duration, count) {
+    if (currentIndex < count) {
+    let minutes, seconds;
+    countdownInterval = setInterval(function () {
+        minutes = parseInt(duration / 60);
+        seconds = parseInt(duration % 60);
 
+        minutes = minutes < 10 ? `0${minutes}` : minutes;
+        seconds = seconds < 10 ? `0${seconds}` : seconds;
 
+        countdownElement.innerHTML = `${minutes}:${seconds}`;
 
-
-
+        if (--duration < 0) {
+        clearInterval(countdownInterval);
+        submitButton.click();
+        }
+    }, 1000);
+    }
+}
 
 
 
